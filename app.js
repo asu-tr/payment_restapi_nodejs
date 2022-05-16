@@ -21,27 +21,51 @@ app.post('/account', (req, res) => {
 
 // Account Info Route
 app.get('/account/:id', (req, res) => {
-    // Send account info
+    // find account with given id.
+
+    // send account info
+
 });
 
 // Payment Route
 app.post('payment', (req, res) => {
-    // Make payment
+    // check if sender account is individual
+    // AND if receiver account is corporate
+
+    // both should be same currency
+
+    // check sender balance
+
+    // do the transfer
+
+    // add transaction to history for both accounts
 });
 
 // Deposit Route
 app.post('deposit', (req, res) => {
-    // Deposit money
+    // check if account is individual
+
+    // deposit money
+
+    // add transaction to history
+
 });
 
 // Withdraw Route
 app.post('withdraw', (req, res) => {
-    // Withdraw money
+    // check if account is individual
+
+    // witdraw money
+
+    // add transaction to history
+
 });
 
 // Transaction History
 app.get('/accounting/:id', (req, res) => {
-    // Get transaction history
+    // find account with given id
+
+    // get transaction history for the account with given id
 });
 
 
