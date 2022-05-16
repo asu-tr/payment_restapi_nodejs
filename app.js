@@ -14,6 +14,7 @@ const accounts = [
     }
 ];
 
+
 // 1- Account Create Route
 app.post('/account', (req, res) => {
 
@@ -57,20 +58,22 @@ app.post('/account', (req, res) => {
     };
 
     accounts.push(account);
-
-    // returning account details that has been added
-    res.send(account);
+    res.status(200).send('The account has been created.');
 });
 
-// Account Info Route
-app.get('/account/:id', (req, res) => {
+
+// 2- Account Info Route
+app.get('/account/:accountNumber', (req, res) => {
     // find account with given id
-    const account = accounts.find(a => a.id === parseInt(req.params.id));
-    if (!account) res.status(404).send('The account with the given ID was not found.');
+    const account = accounts.find(a => a.accountNumber === parseInt(req.params.accountNumber));
+
+    // respond with 404 not found if there's no matching account.
+    if (!account) res.status(404).send('The account with the given Account Number was not found.');
 
     // send account info
     res.send(account)
 });
+
 
 // Payment Route
 app.post('payment', (req, res) => {
