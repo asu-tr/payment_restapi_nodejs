@@ -79,8 +79,15 @@ app.get('/account/:accountNumber', (req, res) => {
 app.post('payment', (req, res) => {
     // check if sender account is individual
     // AND if receiver account is corporate
+    // AND if amount is valid.
+    Joi.object({
+        senderAccount: Joi.number().required().integer().custom(isIndividual),
+        receiverAccount: Joi.number().required().integer().custom(isCorporate),
+        amount: Joi.number().precision(2).required()
+    });
 
     // both should be same currency
+    
 
     // check sender balance
 
@@ -115,6 +122,40 @@ app.get('/accounting/:id', (req, res) => {
 
     // get transaction history for the account with given id
 });
+
+
+// Method to check if the account is individual
+const isIndividual = (value, helpers) => {
+
+    const account = accounts.find(a => a.accountNumber === value);
+
+    if (!account) {
+        throw new Error('No account found.');
+    }
+
+    if (account.accountType != 'individual'){
+        throw new Error('This account is not an individual account.');
+    }
+    
+    return value;
+};
+
+
+// Method to check if the account is individual
+const isCorporate = (value, helpers) => {
+
+    const account = accounts.find(a => a.accountNumber === value);
+
+    if (!account) {
+        throw new Error('No account found.');
+    }
+
+    if (account.accountType != 'corporate'){
+        throw new Error('This account is not a corporate account.');
+    }
+    
+    return value;
+};
 
 
 app.listen(5050, () => console.log('Listening on port 5050...'));
