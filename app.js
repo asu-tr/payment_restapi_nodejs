@@ -14,28 +14,22 @@ const accounts = [
     }
 ];
 
-// Account Create Route
+// 1- Account Create Route
 app.post('/account', (req, res) => {
 
-    const uniqueId = id => {
-        const account = accounts.find(a => a.id === parseInt(id));
+    // Method to check if an accountNumber is used by another account.
+    const uniqueIdMethod = (value, helpers) => {
+
+        const account = accounts.find(a => a.accountNumber === value);
+
         if (!account) {
-            throw new Error('Invalid account ID.');
+            return value;
         }
+        
+        throw new Error('This Account ID is being used by another account.');
     };
 
-    const uniqueIdMethod = (value, helpers) => {
-        
-        const account = accounts.find(a => a.id === parseInt(req.params.id));
-        if (!account) {
-            return value
-        }
-        
-        throw new Error('Invalid account ID.');
-        //return helpers.error('any.invalid');
-      };
-
-
+    // account details data type etc. validation schema
     const schema = Joi.object({
         accountNumber: Joi.number().required().integer().custom(uniqueIdMethod),
         currencyCode: Joi.string().required().valid('TRY', 'USD', 'EUR'),
@@ -43,15 +37,17 @@ app.post('/account', (req, res) => {
         accountType: Joi.string().required().valid('individual', 'corporate')
     });
 
-    const result = schema.validateAsync(req.body);
+    // checks if given info is valid
+    const result = schema.validate(req.body);
 
-    console.log(result)
+    // if there's an error validating types, shows it
+    if (result.error) {
+        res.status(400).send(result.error.details[0].message);
+        return;
+    }
 
-    // if (result.error) {
-    //     res.status(400).send(result.error);
-    //     return;
-    // }
-
+    // if the code can come this far, this means given data is valid
+    // and we can add this new account to the account list
     const account = {
         accountNumber: parseInt(req.body.accountNumber),
         currencyCode: req.body.currencyCode,
@@ -62,7 +58,8 @@ app.post('/account', (req, res) => {
 
     accounts.push(account);
 
-    res.send(accounts);
+    // returning account details that has been added
+    res.send(account);
 });
 
 // Account Info Route
