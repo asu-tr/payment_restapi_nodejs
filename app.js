@@ -1,30 +1,78 @@
+const Joi = require('joi');
 const express = require('express');
 const app = express();
 
 app.use(express.json());
 
-const accounts = []
+const accounts = [
+    {
+        accountNumber: 1,
+        currencyCode: 'TRY',
+        ownerName: 'Asu',
+        accountType: 'corporate',
+        balance: 100
+    }
+];
 
 // Account Create Route
 app.post('/account', (req, res) => {
+
+    const uniqueId = id => {
+        const account = accounts.find(a => a.id === parseInt(id));
+        if (!account) {
+            throw new Error('Invalid account ID.');
+        }
+    };
+
+    const uniqueIdMethod = (value, helpers) => {
+        
+        const account = accounts.find(a => a.id === parseInt(req.params.id));
+        if (!account) {
+            return value
+        }
+        
+        throw new Error('Invalid account ID.');
+        //return helpers.error('any.invalid');
+      };
+
+
+    const schema = Joi.object({
+        accountNumber: Joi.number().required().integer().custom(uniqueIdMethod),
+        currencyCode: Joi.string().required().valid('TRY', 'USD', 'EUR'),
+        ownerName: Joi.string().required(),
+        accountType: Joi.string().required().valid('individual', 'corporate')
+    });
+
+    const result = schema.validateAsync(req.body);
+
+    console.log(result)
+
+    // if (result.error) {
+    //     res.status(400).send(result.error);
+    //     return;
+    // }
+
     const account = {
-        accountNumber: accounts.length + 1,
+        accountNumber: parseInt(req.body.accountNumber),
         currencyCode: req.body.currencyCode,
         ownerName: req.body.ownerName,
-        accountType: req.body.accountType
+        accountType: req.body.accountType,
+        balance: 0
     };
 
     accounts.push(account);
 
-    res.send(account);
+    res.send(accounts);
 });
 
 // Account Info Route
 app.get('/account/:id', (req, res) => {
-    // find account with given id.
+    // find account with given id
+    const account = accounts.find(a => a.id === parseInt(req.params.id));
+    if (!account) res.status(404).send('The account with the given ID was not found.');
 
     // send account info
-
+    res.send(account)
 });
 
 // Payment Route
