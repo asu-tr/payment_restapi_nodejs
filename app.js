@@ -1,10 +1,10 @@
 const Joi = require('joi');
 const express = require('express');
-const { json } = require('express/lib/response');
 const app = express();
 
 app.use(express.json());
 
+// some example accounts to try routes
 const accounts = [
     {
         accountNumber: 1,
@@ -107,7 +107,7 @@ app.post('/payment', (req, res) => {
     const schema = Joi.object({
         senderAccount: Joi.number().required().integer().custom(isIndividual),
         receiverAccount: Joi.number().required().integer().custom(isCorporate),
-        amount: Joi.number().precision(2).required()
+        amount: Joi.number().precision(2).positive().required()
     });
 
     const result = schema.validate(req.body);
@@ -131,13 +131,13 @@ app.post('/payment', (req, res) => {
     }
 
     // do the transfer
-    senderAccount.balance -= parseFloat(req.body.amount);
-    receiverAccount.balance += parseFloat(req.body.amount);
+    senderAccount.balance -= parseFloat(parseFloat(req.body.amount).toFixed(2));
+    receiverAccount.balance += parseFloat(parseFloat(req.body.amount).toFixed(2));
 
     // add transaction to history for both accounts
     let tranDate = new Date(Date.now()).toUTCString();
-    addTransaction(senderAccount.accountNumber, parseFloat(req.body.amount), "payment", tranDate);
-    addTransaction(receiverAccount.accountNumber, parseFloat(req.body.amount), "payment", tranDate);
+    addTransaction(senderAccount.accountNumber, parseFloat(parseFloat(req.body.amount).toFixed(2)), "payment", tranDate);
+    addTransaction(receiverAccount.accountNumber, parseFloat(parseFloat(req.body.amount).toFixed(2)), "payment", tranDate);
 
     res.status(200).send('The payment has been completed succesfully.');
 });
@@ -149,7 +149,7 @@ app.post('/deposit', (req, res) => {
     // check if account is individual
     const schema = Joi.object({
         accountNumber: Joi.number().required().integer().custom(isIndividual),
-        amount: Joi.number().precision(2).required()
+        amount: Joi.number().positive().required()
     });
 
     const result = schema.validate(req.body);
@@ -161,11 +161,11 @@ app.post('/deposit', (req, res) => {
 
     // deposit money
     const acc = accounts.find(a => a.accountNumber === parseInt(req.body.accountNumber));
-    acc.balance += parseFloat(req.body.amount);
+    acc.balance += parseFloat(parseFloat(req.body.amount).toFixed(2))
 
     // add transaction to history
     let tranDate = new Date(Date.now()).toUTCString();
-    addTransaction(acc.accountNumber, parseFloat(req.body.amount), "deposit", tranDate);
+    addTransaction(acc.accountNumber, parseFloat(parseFloat(req.body.amount).toFixed(2)), "deposit", tranDate);
 
     res.status(200).send(`The deposit has been done succesfully. New balance is: ${acc.balance}`);
 });
@@ -177,7 +177,7 @@ app.post('/withdraw', (req, res) => {
     // check if account is individual
     const schema = Joi.object({
         accountNumber: Joi.number().required().integer().custom(isIndividual),
-        amount: Joi.number().precision(2).required()
+        amount: Joi.number().positive().required()
     });
 
     const result = schema.validate(req.body);
@@ -189,13 +189,13 @@ app.post('/withdraw', (req, res) => {
 
     // witdraw money
     const acc = accounts.find(a => a.accountNumber === parseInt(req.body.accountNumber));
-    acc.balance -= parseFloat(req.body.amount);
+    acc.balance -= parseFloat(parseFloat(req.body.amount).toFixed(2));
 
     // add transaction to history
     let tranDate = new Date(Date.now()).toUTCString();
-    addTransaction(acc.accountNumber, parseFloat(req.body.amount), "withdraw", tranDate);
+    addTransaction(acc.accountNumber, parseFloat(parseFloat(req.body.amount).toFixed(2)), "withdraw", tranDate);
 
-    res.status(200).send(`The deposit has been done succesfully. New balance is: ${acc.balance}`);
+    res.status(200).send(`The withdraw has been done succesfully. New balance is: ${acc.balance}`);
 });
 
 
