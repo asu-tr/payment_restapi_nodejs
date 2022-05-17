@@ -119,42 +119,57 @@ app.post('/payment', (req, res) => {
 
     // both should be same currency
     const senderAccount = accounts.find(a => a.accountNumber === parseInt(req.body.senderAccount));
-    //const sender = JSON.parse(accounts.find(a => a.accountNumber === parseInt(req.params.senderAccount)));
     const receiverAccount = accounts.find(a => a.accountNumber === parseInt(req.body.receiverAccount));
-    //const receiver = JSON.parse(receiverAccount);
 
     if (senderAccount.currencyCode != receiverAccount.currencyCode) {
         res.status(400).send('Sender\'s currency and receiver\'s currency does not match.');
     }
 
     // check sender balance
-    if (senderAccount.balance < parseInt(req.body.amount)) {
+    if (senderAccount.balance < parseFloat(req.body.amount)) {
         res.status(400).send('Sender\'s balance is not enough for this transfer.');
     }
 
     // do the transfer
-    senderAccount.balance -= parseInt(req.body.amount);
-    receiverAccount.balance += parseInt(req.body.amount);
+    senderAccount.balance -= parseFloat(req.body.amount);
+    receiverAccount.balance += parseFloat(req.body.amount);
 
     // add transaction to history for both accounts
-    let tranDate = Date.now();
-    tranDate = new Date(tranDate).toUTCString();
-    addTransaction(senderAccount.accountNumber, parseInt(req.body.amount), "payment", tranDate);
-    addTransaction(receiverAccount.accountNumber, parseInt(req.body.amount), "payment", tranDate);
+    let tranDate = new Date(Date.now()).toUTCString();
+    addTransaction(senderAccount.accountNumber, parseFloat(req.body.amount), "payment", tranDate);
+    addTransaction(receiverAccount.accountNumber, parseFloat(req.body.amount), "payment", tranDate);
 
-    res.status(200).send('The payment has been done succesfully.');
+    res.status(200).send('The payment has been completed succesfully.');
 });
 
 
-// Deposit Route
+// 4- Deposit Route
 app.post('/deposit', (req, res) => {
+
     // check if account is individual
+    const schema = Joi.object({
+        accountNumber: Joi.number().required().integer().custom(isIndividual),
+        amount: Joi.number().precision(2).required()
+    });
+
+    const result = schema.validate(req.body);
+
+    if (result.error) {
+        res.status(400).send(result.error.details[0].message);
+        return;
+    }
 
     // deposit money
+    const acc = accounts.find(a => a.accountNumber === parseInt(req.body.accountNumber));
+    acc.balance += parseFloat(req.body.amount);
 
     // add transaction to history
+    let tranDate = new Date(Date.now()).toUTCString();
+    addTransaction(acc.accountNumber, parseFloat(req.body.amount), "deposit", tranDate);
 
+    res.status(200).send(`The deposit has been done succesfully. New balance is: ${acc.balance}`);
 });
+
 
 // Withdraw Route
 app.post('/withdraw', (req, res) => {
