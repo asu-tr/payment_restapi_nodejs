@@ -1,9 +1,12 @@
 # Payment REST API Project
 
 In this project, users can create an account (individual or corporate), deposit/withdraw money, make a payment and see transaction history.
+
 JSON is used for data exchange.
+
 NPM: joi, express
 
+<br/>
 
 ### Limitations
 - Account numbers should be a positive integer and unique.
@@ -13,6 +16,7 @@ NPM: joi, express
 - Only individual accounts can deposit or withdraw.
 - Payments can only be wired from an individual account to a corporate account.
 
+<br/>
 
 ## Wanna Check Routes Using Postman?
 
