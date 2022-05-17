@@ -171,14 +171,31 @@ app.post('/deposit', (req, res) => {
 });
 
 
-// Withdraw Route
+// 5- Withdraw Route
 app.post('/withdraw', (req, res) => {
+
     // check if account is individual
+    const schema = Joi.object({
+        accountNumber: Joi.number().required().integer().custom(isIndividual),
+        amount: Joi.number().precision(2).required()
+    });
+
+    const result = schema.validate(req.body);
+
+    if (result.error) {
+        res.status(400).send(result.error.details[0].message);
+        return;
+    }
 
     // witdraw money
+    const acc = accounts.find(a => a.accountNumber === parseInt(req.body.accountNumber));
+    acc.balance -= parseFloat(req.body.amount);
 
     // add transaction to history
+    let tranDate = new Date(Date.now()).toUTCString();
+    addTransaction(acc.accountNumber, parseFloat(req.body.amount), "withdraw", tranDate);
 
+    res.status(200).send(`The deposit has been done succesfully. New balance is: ${acc.balance}`);
 });
 
 
