@@ -1,5 +1,6 @@
 const Joi = require('joi');
 const express = require('express');
+const { json } = require('express/lib/response');
 const app = express();
 
 app.use(express.json());
@@ -8,11 +9,34 @@ const accounts = [
     {
         accountNumber: 1,
         currencyCode: 'TRY',
-        ownerName: 'Asu',
+        ownerName: 'Asu Inc.',
         accountType: 'corporate',
-        balance: 100
+        balance: 1000
+    },
+    {
+        accountNumber: 2,
+        currencyCode: 'TRY',
+        ownerName: 'Asu',
+        accountType: 'individual',
+        balance: 150
+    },
+    {
+        accountNumber: 3,
+        currencyCode: 'EUR',
+        ownerName: 'Asu EUR',
+        accountType: 'individual',
+        balance: 200
+    },
+    {
+        accountNumber: 4,
+        currencyCode: 'EUR',
+        ownerName: 'Asu Inc. EUR',
+        accountType: 'corporate',
+        balance: 500
     }
 ];
+
+const transactions = [];
 
 
 // 1- Account Create Route
@@ -58,7 +82,7 @@ app.post('/account', (req, res) => {
     };
 
     accounts.push(account);
-    res.status(200).send('The account has been created.');
+    res.status(201).send('The account has been created.');
 });
 
 
@@ -75,29 +99,55 @@ app.get('/account/:accountNumber', (req, res) => {
 });
 
 
-// Payment Route
-app.post('payment', (req, res) => {
+// 3- Payment Route
+app.post('/payment', (req, res) => {
     // check if sender account is individual
     // AND if receiver account is corporate
     // AND if amount is valid.
-    Joi.object({
+    const schema = Joi.object({
         senderAccount: Joi.number().required().integer().custom(isIndividual),
         receiverAccount: Joi.number().required().integer().custom(isCorporate),
         amount: Joi.number().precision(2).required()
     });
 
+    const result = schema.validate(req.body);
+
+    if (result.error) {
+        res.status(400).send(result.error.details[0].message);
+        return;
+    }
+
     // both should be same currency
-    
+    const senderAccount = accounts.find(a => a.accountNumber === parseInt(req.body.senderAccount));
+    //const sender = JSON.parse(accounts.find(a => a.accountNumber === parseInt(req.params.senderAccount)));
+    const receiverAccount = accounts.find(a => a.accountNumber === parseInt(req.body.receiverAccount));
+    //const receiver = JSON.parse(receiverAccount);
+
+    if (senderAccount.currencyCode != receiverAccount.currencyCode) {
+        res.status(400).send('Sender\'s currency and receiver\'s currency does not match.');
+    }
 
     // check sender balance
+    if (senderAccount.balance < parseInt(req.body.amount)) {
+        res.status(400).send('Sender\'s balance is not enough for this transfer.');
+    }
 
     // do the transfer
+    senderAccount.balance -= parseInt(req.body.amount);
+    receiverAccount.balance += parseInt(req.body.amount);
 
     // add transaction to history for both accounts
+    let tranDate = Date.now();
+    tranDate = new Date(tranDate).toUTCString();
+    addTransaction(senderAccount.accountNumber, parseInt(req.body.amount), "payment", tranDate);
+    addTransaction(receiverAccount.accountNumber, parseInt(req.body.amount), "payment", tranDate);
+
+    res.status(200).send('The payment has been done succesfully.');
 });
 
+
 // Deposit Route
-app.post('deposit', (req, res) => {
+app.post('/deposit', (req, res) => {
     // check if account is individual
 
     // deposit money
@@ -107,7 +157,7 @@ app.post('deposit', (req, res) => {
 });
 
 // Withdraw Route
-app.post('withdraw', (req, res) => {
+app.post('/withdraw', (req, res) => {
     // check if account is individual
 
     // witdraw money
@@ -116,11 +166,20 @@ app.post('withdraw', (req, res) => {
 
 });
 
-// Transaction History
-app.get('/accounting/:id', (req, res) => {
-    // find account with given id
 
-    // get transaction history for the account with given id
+// 6- Transaction History
+app.get('/accounting/:accountNumber', (req, res) => {
+
+    let trans = [];
+
+    // find transactions with the given account number
+    for (let i = 0; i < transactions.length; i++) {
+        if (parseInt(transactions[i].accountNumber) === parseInt(req.params.accountNumber)) {
+            trans.push(transactions[i]);
+        }
+    }
+
+    res.send(trans);
 });
 
 
@@ -156,6 +215,18 @@ const isCorporate = (value, helpers) => {
     
     return value;
 };
+
+
+function addTransaction (accNo, moneyAmount, type, creationTime){
+    const transaction = {
+        accountNumber: accNo,
+        amount: moneyAmount,
+        transactionType: type,
+        createdAt: creationTime
+    };
+
+    transactions.push(transaction);
+}
 
 
 app.listen(5050, () => console.log('Listening on port 5050...'));
