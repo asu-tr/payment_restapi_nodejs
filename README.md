@@ -18,6 +18,92 @@ NPM: joi, express
 
 <br/>
 
-## Wanna Check Routes Using Postman?
+## How to Run?
+
+- Download node.js from [the official website](https://nodejs.org/en/).
+- Open terminal and move to this folder.
+- Type `node app.js`.
+- Now it's running on port 5050.
+- There are some example accounts. You can delete them and leave the list empty, if you want.
+- I prefer Postman but you can use anything you want to send requests. Here are some requests on Postman:  
+<br/>
 
 [![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/644725196f7003fdd000?action=collection%2Fimport)
+
+<br/>
+
+## How-Tos ^.^
+
+
+### How to create a new account:
+
+- HTTP Method: POST  
+- Route: /account  
+- Request template:  
+```
+  {  
+    "accountNumber": "number",  
+    "currencyCode": { enum: ["TRY", "USD", "EUR"] },  
+    "ownerName": "string",  
+    "accountType": { enum: ["individual", "corporate"] }  
+  }
+```
+
+<br/>
+
+### How to get account info:
+
+- HTTP Method: GET
+- Route: /account/{accountNumber}
+
+<br/>
+
+### How to make a payment:
+
+- HTTP Method: POST
+- Route: /payment
+- Request template:
+```
+  {
+    "senderAccount": "number",
+    "receiverAccount": "number",
+    "amount": "number",
+  }
+```
+
+<br/>
+
+### How to deposit money:
+
+- HTTP Method: POST
+- Route: /deposit
+- Request template:
+```
+  {
+    "accountNumber": "number",
+    "amount": "number"
+  }
+```
+
+<br/>
+
+### How to withdraw money:
+
+- HTTP Method: POST  
+- Route: /withdraw  
+- Request template:
+```
+  {
+    "accountNumber": "number",
+    "amount": "number"
+  }
+```
+
+<br/>
+
+### How to get the transaction history:
+
+- HTTP Method: GET
+- Route: accounting/{accountNumber}
+
+<br/>
