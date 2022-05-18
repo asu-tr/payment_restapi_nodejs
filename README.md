@@ -25,10 +25,10 @@ NPM: joi, express
 - Type `node app.js`.
 - Now it's running on port 5050.
 - There are some example accounts. You can delete them and leave the list empty, if you want.
-- I prefer Postman but you can use anything you want to send requests. Here are some requests on Postman:  
+- I prefer Postman but you can use anything you want to send requests or test. Here are some requests on Postman:  
 <br/>
 
-[![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/644725196f7003fdd000?action=collection%2Fimport)
+[![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/21002803-af5b4a8d-1e51-4638-9d1e-49d9efd306b8?action=collection%2Ffork&collection-url=entityId%3D21002803-af5b4a8d-1e51-4638-9d1e-49d9efd306b8%26entityType%3Dcollection%26workspaceId%3D363d43f1-c887-427a-8646-675637d58b57)
 
 <br/>
 
