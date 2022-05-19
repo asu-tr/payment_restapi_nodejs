@@ -14,7 +14,7 @@ NPM: joi, express
 - Account types are: individual, corporate.
 - Balances cannot be negative.
 - Only individual accounts can deposit or withdraw.
-- Payments can only be wired from an individual account to a corporate account.
+- Payments can only be wired from an individual account to a corporate account. And the accounts should have same currency type.
 
 <br/>
 
@@ -22,7 +22,9 @@ NPM: joi, express
 
 - Download node.js from [the official website](https://nodejs.org/en/).
 - Open terminal and move to this folder.
-- Type `node app.js`.
+- Type `node app.js`  
+  or
+  `docker build -t nameYouWant .` and then `docker run --publish 5050:5050 nameYouWant`.
 - Now it's running on port 5050.
 - There are some example accounts. You can delete them and leave the list empty, if you want.
 - I prefer Postman but you can use anything you want to send requests or test. Here are some requests on Postman:  
