@@ -123,11 +123,13 @@ app.post('/payment', (req, res) => {
 
     if (senderAccount.currencyCode != receiverAccount.currencyCode) {
         res.status(400).send('Sender\'s currency and receiver\'s currency does not match.');
+        return;
     }
 
     // check sender balance
     if (senderAccount.balance < parseFloat(req.body.amount)) {
         res.status(400).send('Sender\'s balance is not enough for this transfer.');
+        return;
     }
 
     // do the transfer
